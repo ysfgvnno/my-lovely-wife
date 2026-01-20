@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiki Sundari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400&family=Crimson+Pro:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Crimson Pro', 'Noto Serif JP', serif;
+            background: linear-gradient(to bottom, #fcf4f6 0%, #f1e8eb 100%);
+            min-height: 100vh;
+            color: #5a5550;
+        }
+
+        .petal {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(ellipse at center, rgba(255, 200, 210, 0.4) 0%, rgba(255, 220, 225, 0.2) 100%);
+            border-radius: 50% 0 50% 0;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(100vh) translateX(var(--drift)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .petal {
+                animation: none;
+                display: none;
+            }
+        }
+
+        .letter-text {
+            font-size: 17px;
+            line-height: 1.85;
+            max-width: 65ch;
+            margin: 0 auto;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: linear-gradient(to bottom, #fdf8f9 0%, #f4eff1 100%);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover:not(.locked) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .envelope {
+            transition: all 0.4s ease;
+        }
+
+        .envelope:hover {
+            transform: translateY(-3px);
+        }
+
+        .lock-icon {
+            opacity: 0.25;
+        }
+
+        .sakura-accent {
+            color: #e8b4bc;
+        }
+
+        .current-month {
+            border: 1px solid rgba(232, 180, 188, 0.3);
+            box-shadow: 0 0 20px rgba(232, 180, 188, 0.15);
+        }
+    </style>
+</head>
+<body class="relative overflow-x-hidden">
+    <div id="petals-container"></div>
+    
+    <div id="main-menu" class="min-h-screen flex items-center justify-center px-6 py-12 fade-in">
+        <div class="text-center max-w-md w-full relative z-10">
+            <h1 class="text-5xl md:text-6xl font-extralight mb-3 tracking-wide" style="color: #7a6f68;">Moments</h1>
+            <p class="text-lg font-light mb-16 opacity-70">Together, as time unfolds in 2026</p>
+            
+            <div class="space-y-6">
+                <button onclick="showMonthlyLetters()" class="w-full card rounded-2xl px-8 py-8 shadow-sm hover:shadow-md">
+                    <div class="text-2xl font-light mb-2">Monthly Letters</div>
+                    <div class="text-sm opacity-60 font-light">Twelve moments, one for each moon</div>
+                </button>
+                
+                <button onclick="showOpenWhen()" class="w-full card rounded-2xl px-8 py-8 shadow-sm hover:shadow-md">
+                    <div class="text-2xl font-light mb-2">Open When</div>
+                    <div class="text-sm opacity-60 font-light">Words for whenever you need them</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="monthly-section" class="hidden min-h-screen px-6 py-12">
+        <div class="max-w-5xl mx-auto relative z-10">
+            <button onclick="showMainMenu()" class="mb-8 text-sm opacity-60 hover:opacity-100 transition-opacity font-light">← Return</button>
+            <h2 class="text-4xl font-extralight text-center mb-4 tracking-wide" style="color: #7a6f68;">Monthly Letters</h2>
+            <p class="text-center text-sm opacity-60 mb-12 font-light">One letter blooms each month</p>
+            <div id="monthly-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <div id="openwhen-section" class="hidden min-h-screen px-6 py-12">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <button onclick="showMainMenu()" class="mb-8 text-sm opacity-60 hover:opacity-100 transition-opacity font-light">← Return</button>
+            <h2 class="text-4xl font-extralight text-center mb-4 tracking-wide" style="color: #7a6f68;">Open When</h2>
+            <p class="text-center text-sm opacity-60 mb-12 font-light">For moments when you need these words</p>
+            <div id="openwhen-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+        </div>
+    </div>
+
+    <script>
+        const monthlyLetters = [
+            { month: 'January',   content: 'Well, this is your 29th birthday. last year of being in season 2 I guess. you have been through a lot, I know. but you are still here, still standing, still growing. I am so proud of you for that. for every hard day you faced, for every time you chose to keep going when it would have been easier to give up. this year, I hope you find moments of peace amidst the chaos, joy amidst the struggle. may you continue to grow into the person you are meant to be, with all your beauty and strengths. happy birthday, my dear. here\'s to another year of becoming.' },
+            { month: 'February',  content: 'Here comes february, Ramadan is here, I hope we can get closer to God, enjoy the fasting month together as a family. may our little family be blessed with health, joy, and happiness. can\'t wait to have special buka puasa with you.'},
+            { month: 'March',     content: ''},
+            { month: 'April',     content: ''},
+            { month: 'May',       content: ''},
+            { month: 'June',      content: ''},
+            { month: 'July',      content: ''},
+            { month: 'August',    content: 'This is the month where you struggle a lot, facing immature me, stressing about giving birth. I know that I haven\'t been the best husband. but I\'m trying, I keep on trying. thank you for being such an awesome mother, thank you for giving me the best thing that no one else could have given.'},
+            { month: 'September', content: 'September remarks the time when we first stepped into our new house together, starting a new chapter with what we have, and now we have filled our house with househods and memories. I\'m looking forward to make more memories with you and Aaron in this house. let\'s make this house a home filled with love, laughter, and warmth.'},
+            { month: 'October',   content: ''},
+            { month: 'November',  content: ''},
+            { month: 'December',  content: 'Woah! another year is about to pass. I hope we can close this year with many happy memories together. excited for season 3? it\'s going to be a very busy season for us, I hope I can always be there for you, supporting you, loving you, and making you happy. let\'s make the most out of this last month of the year!' }
+        ];
+
+        const openWhenLetters = [
+            { title: 'Open when you are happy',      content: 'Take a deep breathe, feel your body, feel your surroundings. capture this moment, etch it into your memory. happiness can be taken anytime, but memory lives forever, just like our bond, me, you and our beloved son'},
+            { title: 'Open when you are tired',      content: 'Hi Luv, everything you do, you pour your heart into it, that\'s what makes it special. we know that you always put us first and yourself later. this time, come to us, we are here for you.'},
+            { title: 'Open when you are stressed',   content: 'Feeling overwhelmed? let me tell you, it`s okay, take a deep breath, get some break. you\'ve been doing your best and that\'s all that matters. go easy on yourself. we love you (me and Eyen).'},
+            { title: 'Open when you need courage',   content: 'Feeling nervous? I know you are. but I believe in you. you are stronger than you think. and I will always be here for you.'},
+            { title: 'Open when you need comfort',   content: 'I guess lately things hasn\'t been easy for you. I want you to know that it\'s okay to feel this way. life can be tough sometimes, and it\'s normal to feel overwhelmed or sad. but please remember that you are not alone. I am here for you, always. whenever you need a shoulder to lean on or someone to talk to, I am your man. you are loved and valued, and your feelings matter. take all the time you need to heal and take care of yourself. we will get through this together.'},
+            { title: 'Open when you feel alone',     content: 'By the time you open this letter, I guess I was not around anymore. if I\'m away, please remember that it\'s only temporary, and even that I\'m away, I will always be thinking of you, and if I no longer in this world, know that I never stopped loving you, always and forever.'}
+        ];
+
+        const screens = {
+            menu: document.getElementById('main-menu'),
+            monthly: document.getElementById('monthly-section'),
+            openwhen: document.getElementById('openwhen-section')
+        };
+
+        function showMainMenu() {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens.menu.classList.remove('hidden');
+            screens.menu.classList.add('fade-in');
+        }
+
+        function showMonthlyLetters() {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens.monthly.classList.remove('hidden');
+            screens.monthly.classList.add('fade-in');
+            renderMonthlyLetters();
+        }
+
+        function showOpenWhen() {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens.openwhen.classList.remove('hidden');
+            screens.openwhen.classList.add('fade-in');
+            renderOpenWhenLetters();
+        }
+
+        function getCurrentMonth() {
+            return new Date().getMonth();
+        }
+
+        function isMonthUnlocked(index) {
+            return index <= getCurrentMonth();
+        }
+
+        function getStorage(key) {
+            return localStorage.getItem(key) === 'true';
+        }
+
+        function setStorage(key) {
+            localStorage.setItem(key, 'true');
+        }
+
+        function renderMonthlyLetters() {
+            const grid = document.getElementById('monthly-grid');
+            grid.innerHTML = '';
+            const currentMonth = getCurrentMonth();
+
+            monthlyLetters.forEach((letter, index) => {
+                const unlocked = isMonthUnlocked(index);
+                const opened = getStorage(`month-${index}`);
+                const isCurrent = index === currentMonth;
+
+                const card = document.createElement('div');
+                card.className = `card rounded-xl p-6 shadow-sm ${unlocked ? '' : 'locked opacity-40'} ${isCurrent && !opened ? 'current-month' : ''} ${unlocked && !opened ? 'cursor-pointer' : ''}`;
+
+                if (unlocked && !opened) {
+                    card.onclick = () => openMonthlyLetter(index);
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="text-xl font-light ${isCurrent && !opened ? 'sakura-accent' : ''}">${letter.month}</h3>
+                        ${!unlocked ? '<svg class="w-5 h-5 lock-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+                    </div>
+                    ${!unlocked ? `<p class="text-xs opacity-50 font-light">This letter blooms in ${letter.month}</p>` : ''}
+                    ${opened ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>` : ''}
+                    ${unlocked && !opened ? '<p class="text-sm opacity-60 font-light mt-2">Touch to open</p>' : ''}
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function openMonthlyLetter(index) {
+            setStorage(`month-${index}`);
+            renderMonthlyLetters();
+        }
+
+        function renderOpenWhenLetters() {
+            const grid = document.getElementById('openwhen-grid');
+            grid.innerHTML = '';
+
+            openWhenLetters.forEach((letter, index) => {
+                const opened = getStorage(`openwhen-${index}`);
+
+                const card = document.createElement('div');
+                card.className = `card rounded-xl p-6 shadow-sm ${!opened ? 'cursor-pointer envelope' : ''}`;
+
+                if (!opened) {
+                    card.onclick = () => openWhenLetter(index);
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-center mb-4">
+                            <svg class="w-10 h-10 opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-light text-center mb-3">${letter.title}</h3>
+                        ${opened ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>` : '<p class="text-sm opacity-60 font-light text-center">Touch to open</p>'}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function openWhenLetter(index) {
+            setStorage(`openwhen-${index}`);
+            renderOpenWhenLetters();
+        }
+
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            const petalCount = 8;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                const duration = 15 + Math.random() * 10;
+                const delay = Math.random() * 8;
+                const drift = (Math.random() - 0.5) * 100;
+                const startX = Math.random() * 100;
+                
+                petal.style.left = `${startX}%`;
+                petal.style.animationDuration = `${duration}s`;
+                petal.style.animationDelay = `${delay}s`;
+                petal.style.setProperty('--drift', `${drift}px`);
+                
+                container.appendChild(petal);
+            }
+        }
+
+        createPetals();
+    </script>
+</body>
+</html>

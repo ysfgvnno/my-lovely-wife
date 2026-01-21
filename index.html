@@ -161,6 +161,9 @@
     </div>
 
     <script>
+        const openMonthly = new Set();
+        const openOpenWhen = new Set();
+
         const monthlyLetters = [
             { month: 'January',   content: 'Well, this is your 29th birthday. last year of being in season 2 I guess. you have been through a lot, I know. but you are still here, still standing, still growing. I am so proud of you for that. for every hard day you faced, for every time you chose to keep going when it would have been easier to give up. this year, I hope you find moments of peace amidst the chaos, joy amidst the struggle. may you continue to grow into the person you are meant to be, with all your beauty and strengths. happy birthday, my dear. here\'s to another year of becoming.' },
             { month: 'February',  content: 'Here comes february, Ramadan is here, I hope we can get closer to God, enjoy the fasting month together as a family. may our little family be blessed with health, joy, and happiness. can\'t wait to have special buka puasa with you.'},
@@ -182,7 +185,8 @@
             { title: 'Open when you are stressed',   content: 'Feeling overwhelmed? let me tell you, it`s okay, take a deep breath, get some break. you\'ve been doing your best and that\'s all that matters. go easy on yourself. we love you (me and Eyen).'},
             { title: 'Open when you need courage',   content: 'Feeling nervous? I know you are. but I believe in you. you are stronger than you think. and I will always be here for you.'},
             { title: 'Open when you need comfort',   content: 'I guess lately things hasn\'t been easy for you. I want you to know that it\'s okay to feel this way. life can be tough sometimes, and it\'s normal to feel overwhelmed or sad. but please remember that you are not alone. I am here for you, always. whenever you need a shoulder to lean on or someone to talk to, I am your man. you are loved and valued, and your feelings matter. take all the time you need to heal and take care of yourself. we will get through this together.'},
-            { title: 'Open when you feel alone',     content: 'By the time you open this letter, I guess I was not around anymore. if I\'m away, please remember that it\'s only temporary, and even that I\'m away, I will always be thinking of you, and if I no longer in this world, know that I never stopped loving you, always and forever.'}
+            { title: 'Open when you feel alone',     content: 'By the time you open this letter, I guess I was not around anymore. if I\'m away, please remember that it\'s only temporary, and even that I\'m away, I will always be thinking of you, and if I no longer in this world, know that I never stopped loving you, always and forever.'},
+            { title: 'Open when you remember me',    content: 'Of course you remember me, I\'m awesome 😏'}
         ];
 
         const screens = {
@@ -219,14 +223,6 @@
             return index <= getCurrentMonth();
         }
 
-        function getStorage(key) {
-            return localStorage.getItem(key) === 'true';
-        }
-
-        function setStorage(key) {
-            localStorage.setItem(key, 'true');
-        }
-
         function renderMonthlyLetters() {
             const grid = document.getElementById('monthly-grid');
             grid.innerHTML = '';
@@ -234,24 +230,41 @@
 
             monthlyLetters.forEach((letter, index) => {
                 const unlocked = isMonthUnlocked(index);
-                const opened = getStorage(`month-${index}`);
+                const opened = openMonthly.has(index);
                 const isCurrent = index === currentMonth;
 
                 const card = document.createElement('div');
-                card.className = `card rounded-xl p-6 shadow-sm ${unlocked ? '' : 'locked opacity-40'} ${isCurrent && !opened ? 'current-month' : ''} ${unlocked && !opened ? 'cursor-pointer' : ''}`;
+                card.className = `
+                    card rounded-xl p-6 shadow-sm
+                    ${unlocked ? 'cursor-pointer' : 'locked opacity-40'}
+                    ${isCurrent && !opened ? 'current-month' : ''}
+                `;
 
-                if (unlocked && !opened) {
-                    card.onclick = () => openMonthlyLetter(index);
+                if (unlocked) {
+                    card.onclick = () => {
+                        opened ? openMonthly.delete(index) : openMonthly.add(index);
+                        renderMonthlyLetters();
+                    };
                 }
 
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-3">
-                        <h3 class="text-xl font-light ${isCurrent && !opened ? 'sakura-accent' : ''}">${letter.month}</h3>
-                        ${!unlocked ? '<svg class="w-5 h-5 lock-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+                        <h3 class="text-xl font-light ${isCurrent && !opened ? 'sakura-accent' : ''}">
+                            ${letter.month}
+                        </h3>
+                        ${!unlocked ? `
+                            <svg class="w-5 h-5 lock-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                        ` : ''}
                     </div>
-                    ${!unlocked ? `<p class="text-xs opacity-50 font-light">This letter blooms in ${letter.month}</p>` : ''}
-                    ${opened ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>` : ''}
-                    ${unlocked && !opened ? '<p class="text-sm opacity-60 font-light mt-2">Touch to open</p>' : ''}
+
+                    ${!unlocked
+                        ? `<p class="text-xs opacity-50 font-light">This letter blooms in ${letter.month}</p>`
+                        : opened
+                            ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>`
+                            : `<p class="text-sm opacity-60 font-light mt-2">Touch to open</p>`
+                    }
                 `;
 
                 grid.appendChild(card);
@@ -268,14 +281,19 @@
             grid.innerHTML = '';
 
             openWhenLetters.forEach((letter, index) => {
-                const opened = getStorage(`openwhen-${index}`);
+                const opened = openOpenWhen.has(index);
 
                 const card = document.createElement('div');
-                card.className = `card rounded-xl p-6 shadow-sm ${!opened ? 'cursor-pointer envelope' : ''}`;
+                card.className = `
+                    card rounded-xl p-6 shadow-sm
+                    cursor-pointer
+                    ${!opened ? 'envelope' : ''}
+                `;
 
-                if (!opened) {
-                    card.onclick = () => openWhenLetter(index);
-                }
+                card.onclick = () => {
+                    opened ? openOpenWhen.delete(index) : openOpenWhen.add(index);
+                    renderOpenWhenLetters();
+                };
 
                 card.innerHTML = `
                     <div>
@@ -285,15 +303,21 @@
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                             </svg>
                         </div>
+
                         <h3 class="text-lg font-light text-center mb-3">${letter.title}</h3>
-                        ${opened ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>` : '<p class="text-sm opacity-60 font-light text-center">Touch to open</p>'}
+
+                        ${
+                            opened
+                                ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>`
+                                : `<p class="text-sm opacity-60 font-light text-center">Touch to open</p>`
+                        }
                     </div>
                 `;
 
                 grid.appendChild(card);
             });
         }
-
+        
         function openWhenLetter(index) {
             setStorage(`openwhen-${index}`);
             renderOpenWhenLetters();

@@ -7,44 +7,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400&family=Crimson+Pro:wght@200;300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
     <style>
         * {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        body {
-            font-family: 'Crimson Pro', 'Noto Serif JP', serif;
-            background: linear-gradient(to bottom, #fcf4f6 0%, #f1e8eb 100%);
-            min-height: 100vh;
-            color: #5a5550;
+        :root {
+            --rose-50: #fff5f7;
+            --rose-100: #ffe4e9;
+            --rose-200: #ffc9d4;
+            --rose-300: #ff9fb3;
+            --rose-400: #ff6b8f;
+            --rose-500: #ff3366;
+            --rose-600: #e62e5c;
+            --text-primary: #4a3f3a;
+            --text-secondary: #6b5d57;
+            --text-muted: #9b8b85;
         }
 
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 50%, #fff0f3 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .serif {
+            font-family: 'Cormorant', serif;
+        }
+
+        /* Floating petals */
         .petal {
             position: fixed;
-            width: 12px;
-            height: 12px;
-            background: radial-gradient(ellipse at center, rgba(255, 200, 210, 0.4) 0%, rgba(255, 220, 225, 0.2) 100%);
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(ellipse at 30% 30%, rgba(255, 159, 179, 0.5) 0%, rgba(255, 200, 212, 0.3) 50%, transparent 100%);
             border-radius: 50% 0 50% 0;
             pointer-events: none;
             z-index: 1;
             animation: fall linear infinite;
+            filter: blur(0.5px);
         }
 
         @keyframes fall {
             0% {
-                transform: translateY(-20px) translateX(0) rotate(0deg);
+                transform: translateY(-20px) translateX(0) rotate(0deg) scale(1);
                 opacity: 0;
             }
             10% {
-                opacity: 0.6;
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(50vh) translateX(var(--drift)) rotate(180deg) scale(0.9);
             }
             90% {
-                opacity: 0.3;
+                opacity: 0.4;
             }
             100% {
-                transform: translateY(100vh) translateX(var(--drift)) rotate(360deg);
+                transform: translateY(100vh) translateX(calc(var(--drift) * 1.5)) rotate(360deg) scale(0.7);
                 opacity: 0;
             }
         }
@@ -56,19 +79,72 @@
             }
         }
 
-        .letter-text {
-            font-size: 17px;
-            line-height: 1.85;
-            max-width: 65ch;
-            margin: 0 auto;
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+        }
+
+        /* Enhanced card styles */
+        .card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 247, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 200, 212, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 143, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover:not(.locked)::before {
+            opacity: 1;
+        }
+
+        .card:hover:not(.locked) {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(255, 51, 102, 0.12);
+            border-color: rgba(255, 159, 179, 0.3);
+        }
+
+        /* Letter text styling */
+        .letter-text {
+            font-size: 18px;
+            line-height: 2;
+            max-width: 65ch;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+
+        /* Animations */
         .fade-in {
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.8s ease-out;
         }
 
         .slide-up {
-            animation: slideUp 0.5s ease-out;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scale-in {
+            animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes fadeIn {
@@ -79,7 +155,7 @@
         @keyframes slideUp {
             from { 
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to { 
                 opacity: 1;
@@ -87,76 +163,244 @@
             }
         }
 
-        .card {
-            background: linear-gradient(to bottom, #fdf8f9 0%, #f4eff1 100%);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .card:hover:not(.locked) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-        }
-
+        /* Envelope effect */
         .envelope {
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .envelope:hover {
-            transform: translateY(-3px);
+            transform: translateY(-6px) rotate(1deg);
+            box-shadow: 0 25px 50px rgba(255, 51, 102, 0.15);
         }
 
+        .envelope::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255, 159, 179, 0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .envelope:hover::after {
+            opacity: 1;
+        }
+
+        /* Lock icon styling */
         .lock-icon {
-            opacity: 0.25;
+            opacity: 0.2;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
+        /* Accent colors */
         .sakura-accent {
-            color: #e8b4bc;
+            color: #ff6b8f;
+            text-shadow: 0 2px 8px rgba(255, 107, 143, 0.2);
         }
 
+        /* Current month highlight */
         .current-month {
-            border: 1px solid rgba(232, 180, 188, 0.3);
-            box-shadow: 0 0 20px rgba(232, 180, 188, 0.15);
+            border: 2px solid rgba(255, 107, 143, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 107, 143, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 245, 247, 0.95) 100%);
+        }
+
+        .current-month::before {
+            opacity: 1;
+        }
+
+        /* Button styles */
+        .btn-main {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-main::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 107, 143, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-main:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Decorative elements */
+        .decorative-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 159, 179, 0.3), transparent);
+        }
+
+        .decorative-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 159, 179, 0.4);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 245, 247, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 159, 179, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 159, 179, 0.5);
+        }
+
+        /* Month badge */
+        .month-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 159, 179, 0.1), rgba(255, 200, 212, 0.15));
+            border: 1px solid rgba(255, 159, 179, 0.2);
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Glow effect */
+        .glow {
+            box-shadow: 0 0 20px rgba(255, 107, 143, 0.15), 0 0 40px rgba(255, 159, 179, 0.1);
         }
     </style>
 </head>
 <body class="relative overflow-x-hidden">
     <div id="petals-container"></div>
     
+    <!-- Main Menu -->
     <div id="main-menu" class="min-h-screen flex items-center justify-center px-6 py-12 fade-in">
-        <div class="text-center max-w-md w-full relative z-10">
-            <h1 class="text-5xl md:text-6xl font-extralight mb-3 tracking-wide" style="color: #7a6f68;">Moments</h1>
-            <p class="text-lg font-light mb-16 opacity-70">Together, as time unfolds in 2026</p>
+        <div class="text-center max-w-lg w-full relative z-10">
+            <div class="mb-8 scale-in">
+                <div class="decorative-line mb-6"></div>
+                <div class="flex justify-center gap-2 mb-6">
+                    <div class="decorative-dot"></div>
+                    <div class="decorative-dot"></div>
+                    <div class="decorative-dot"></div>
+                </div>
+            </div>
             
-            <div class="space-y-6">
-                <button onclick="showMonthlyLetters()" class="w-full card rounded-2xl px-8 py-8 shadow-sm hover:shadow-md">
-                    <div class="text-2xl font-light mb-2">Monthly Letters</div>
-                    <div class="text-sm opacity-60 font-light">Twelve moments, one for each moon</div>
+            <h1 class="serif text-6xl md:text-7xl font-light mb-4 tracking-wider" style="color: #4a3f3a;">
+                Moments
+            </h1>
+            <p class="text-lg font-light mb-3 opacity-70 tracking-wide">Together, as time unfolds</p>
+            <p class="text-sm font-light mb-16 opacity-50 tracking-widest">2026</p>
+            
+            <div class="space-y-5">
+                <button onclick="showMonthlyLetters()" class="w-full card rounded-3xl px-10 py-10 shadow-lg btn-main group">
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-center gap-3 mb-3">
+                            <svg class="w-6 h-6 opacity-40" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                            </svg>
+                            <div class="serif text-3xl font-light">Monthly Letters</div>
+                        </div>
+                        <div class="text-sm opacity-60 font-light">Twelve moments, one for each moon</div>
+                    </div>
                 </button>
                 
-                <button onclick="showOpenWhen()" class="w-full card rounded-2xl px-8 py-8 shadow-sm hover:shadow-md">
-                    <div class="text-2xl font-light mb-2">Open When</div>
-                    <div class="text-sm opacity-60 font-light">Words for whenever you need them</div>
+                <button onclick="showOpenWhen()" class="w-full card rounded-3xl px-10 py-10 shadow-lg btn-main group">
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-center gap-3 mb-3">
+                            <svg class="w-6 h-6 opacity-40" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                            <div class="serif text-3xl font-light">Open When</div>
+                        </div>
+                        <div class="text-sm opacity-60 font-light">Words for whenever you need them</div>
+                    </div>
                 </button>
+            </div>
+
+            <div class="mt-12 scale-in" style="animation-delay: 0.2s;">
+                <div class="flex justify-center gap-2 mb-6">
+                    <div class="decorative-dot"></div>
+                    <div class="decorative-dot"></div>
+                    <div class="decorative-dot"></div>
+                </div>
+                <div class="decorative-line"></div>
             </div>
         </div>
     </div>
 
-    <div id="monthly-section" class="hidden min-h-screen px-6 py-12">
-        <div class="max-w-5xl mx-auto relative z-10">
-            <button onclick="showMainMenu()" class="mb-8 text-sm opacity-60 hover:opacity-100 transition-opacity font-light">← Return</button>
-            <h2 class="text-4xl font-extralight text-center mb-4 tracking-wide" style="color: #7a6f68;">Monthly Letters</h2>
-            <p class="text-center text-sm opacity-60 mb-12 font-light">One letter blooms each month</p>
-            <div id="monthly-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <!-- Monthly Letters Section -->
+    <div id="monthly-section" class="hidden min-h-screen px-6 py-16">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <button onclick="showMainMenu()" class="glass rounded-full px-6 py-3 text-sm opacity-80 hover:opacity-100 transition-all font-light mb-12 hover:shadow-lg">
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Return
+                </span>
+            </button>
+            
+            <div class="text-center mb-16 fade-in">
+                <div class="decorative-line mb-8 max-w-md mx-auto"></div>
+                <h2 class="serif text-5xl md:text-6xl font-light mb-4 tracking-wider" style="color: #4a3f3a;">Monthly Letters</h2>
+                <p class="text-sm opacity-60 font-light tracking-widest">ONE LETTER BLOOMS EACH MONTH</p>
+                <div class="decorative-line mt-8 max-w-md mx-auto"></div>
+            </div>
+            
+            <div id="monthly-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </div>
     </div>
 
-    <div id="openwhen-section" class="hidden min-h-screen px-6 py-12">
-        <div class="max-w-4xl mx-auto relative z-10">
-            <button onclick="showMainMenu()" class="mb-8 text-sm opacity-60 hover:opacity-100 transition-opacity font-light">← Return</button>
-            <h2 class="text-4xl font-extralight text-center mb-4 tracking-wide" style="color: #7a6f68;">Open When</h2>
-            <p class="text-center text-sm opacity-60 mb-12 font-light">For moments when you need these words</p>
-            <div id="openwhen-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+    <!-- Open When Section -->
+    <div id="openwhen-section" class="hidden min-h-screen px-6 py-16">
+        <div class="max-w-5xl mx-auto relative z-10">
+            <button onclick="showMainMenu()" class="glass rounded-full px-6 py-3 text-sm opacity-80 hover:opacity-100 transition-all font-light mb-12 hover:shadow-lg">
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Return
+                </span>
+            </button>
+            
+            <div class="text-center mb-16 fade-in">
+                <div class="decorative-line mb-8 max-w-md mx-auto"></div>
+                <h2 class="serif text-5xl md:text-6xl font-light mb-4 tracking-wider" style="color: #4a3f3a;">Open When</h2>
+                <p class="text-sm opacity-60 font-light tracking-widest">FOR MOMENTS WHEN YOU NEED THESE WORDS</p>
+                <div class="decorative-line mt-8 max-w-md mx-auto"></div>
+            </div>
+            
+            <div id="openwhen-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-8"></div>
         </div>
     </div>
 
@@ -167,7 +411,7 @@
         const monthlyLetters = [
             { month: 'January',   content: 'Well, this is your 29th birthday. last year of being in season 2 I guess. you have been through a lot, I know. but you are still here, still standing, still growing. I am so proud of you for that. for every hard day you faced, for every time you chose to keep going when it would have been easier to give up. this year, I hope you find moments of peace amidst the chaos, joy amidst the struggle. may you continue to grow into the person you are meant to be, with all your beauty and strengths. happy birthday, my dear. here\'s to another year of becoming.' },
             { month: 'February',  content: 'Here comes february, Ramadan is here, I hope we can get closer to God, enjoy the fasting month together as a family. may our little family be blessed with health, joy, and happiness. can\'t wait to have special buka puasa with you.'},
-            { month: 'March',     content: ''},
+            { month: 'March',     content: 'I hope everything goes well with everything, I know sometimes it can be overwhelming and I don\'t always listen and understand, but you know, I always be the one who\'s on the front line and will always be there for you. Cannot wait to spend long trip and savor every moment together with our little family.'},
             { month: 'April',     content: ''},
             { month: 'May',       content: ''},
             { month: 'June',      content: ''},
@@ -228,42 +472,61 @@
             grid.innerHTML = '';
             const currentMonth = getCurrentMonth();
 
-            monthlyLetters.forEach((letter, index) => {
-                const unlocked = isMonthUnlocked(index);
-                const opened = openMonthly.has(index);
-                const isCurrent = index === currentMonth;
+            monthlyLetters.forEach((letter, i) => {
+                const letterIndex = i; // Capture index properly
+                const unlocked = isMonthUnlocked(letterIndex);
+                const opened = openMonthly.has(letterIndex);
+                const isCurrent = letterIndex === currentMonth;
 
                 const card = document.createElement('div');
                 card.className = `
-                    card rounded-xl p-6 shadow-sm
+                    card rounded-2xl p-8 shadow-lg
                     ${unlocked ? 'cursor-pointer' : 'locked opacity-40'}
-                    ${isCurrent && !opened ? 'current-month' : ''}
+                    ${isCurrent && !opened ? 'current-month glow' : ''}
+                    scale-in
                 `;
+                card.style.animationDelay = `${letterIndex * 0.05}s`;
 
                 if (unlocked) {
-                    card.onclick = () => {
-                        opened ? openMonthly.delete(index) : openMonthly.add(index);
+                    card.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (openMonthly.has(letterIndex)) {
+                            openMonthly.delete(letterIndex);
+                        } else {
+                            openMonthly.add(letterIndex);
+                        }
                         renderMonthlyLetters();
-                    };
+                    });
                 }
 
                 card.innerHTML = `
-                    <div class="flex items-start justify-between mb-3">
-                        <h3 class="text-xl font-light ${isCurrent && !opened ? 'sakura-accent' : ''}">
-                            ${letter.month}
-                        </h3>
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="serif text-3xl font-light mb-2 ${isCurrent && !opened ? 'sakura-accent' : ''}">
+                                ${letter.month}
+                            </h3>
+                            ${isCurrent && !opened ? '<span class="month-badge">Current</span>' : ''}
+                        </div>
                         ${!unlocked ? `
-                            <svg class="w-5 h-5 lock-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-6 h-6 lock-icon" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                             </svg>
                         ` : ''}
                     </div>
 
                     ${!unlocked
-                        ? `<p class="text-xs opacity-50 font-light">This letter blooms in ${letter.month}</p>`
+                        ? `<p class="text-sm opacity-50 font-light mt-4">This letter blooms in ${letter.month}</p>`
                         : opened
-                            ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>`
-                            : `<p class="text-sm opacity-60 font-light mt-2">Touch to open</p>`
+                            ? `<div class="letter-text mt-8 slide-up pt-6 border-t border-rose-200/30">${letter.content}</div>`
+                            : `<div class="mt-6 pt-4">
+                                <div class="flex items-center gap-2 text-sm opacity-60 font-light">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Touch to reveal
+                                </div>
+                            </div>`
                     }
                 `;
 
@@ -271,45 +534,56 @@
             });
         }
 
-        function openMonthlyLetter(index) {
-            setStorage(`month-${index}`);
-            renderMonthlyLetters();
-        }
-
         function renderOpenWhenLetters() {
             const grid = document.getElementById('openwhen-grid');
             grid.innerHTML = '';
 
-            openWhenLetters.forEach((letter, index) => {
-                const opened = openOpenWhen.has(index);
+            openWhenLetters.forEach((letter, i) => {
+                const letterIndex = i; // Capture index properly
+                const opened = openOpenWhen.has(letterIndex);
 
                 const card = document.createElement('div');
                 card.className = `
-                    card rounded-xl p-6 shadow-sm
+                    card rounded-2xl p-8 shadow-lg
                     cursor-pointer
                     ${!opened ? 'envelope' : ''}
+                    scale-in
                 `;
+                card.style.animationDelay = `${letterIndex * 0.05}s`;
 
-                card.onclick = () => {
-                    opened ? openOpenWhen.delete(index) : openOpenWhen.add(index);
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (openOpenWhen.has(letterIndex)) {
+                        openOpenWhen.delete(letterIndex);
+                    } else {
+                        openOpenWhen.add(letterIndex);
+                    }
                     renderOpenWhenLetters();
-                };
+                });
 
                 card.innerHTML = `
                     <div>
-                        <div class="flex justify-center mb-4">
-                            <svg class="w-10 h-10 opacity-30" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                            </svg>
+                        <div class="flex justify-center mb-6">
+                            <div class="glass-strong rounded-full p-4">
+                                <svg class="w-8 h-8 opacity-40" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                            </div>
                         </div>
 
-                        <h3 class="text-lg font-light text-center mb-3">${letter.title}</h3>
+                        <h3 class="serif text-2xl font-light text-center mb-4">${letter.title}</h3>
 
                         ${
                             opened
-                                ? `<div class="letter-text mt-6 slide-up">${letter.content}</div>`
-                                : `<p class="text-sm opacity-60 font-light text-center">Touch to open</p>`
+                                ? `<div class="letter-text mt-8 slide-up pt-6 border-t border-rose-200/30">${letter.content}</div>`
+                                : `<div class="flex items-center justify-center gap-2 text-sm opacity-60 font-light mt-4">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Touch to reveal
+                                </div>`
                         }
                     </div>
                 `;
@@ -317,23 +591,18 @@
                 grid.appendChild(card);
             });
         }
-        
-        function openWhenLetter(index) {
-            setStorage(`openwhen-${index}`);
-            renderOpenWhenLetters();
-        }
 
         function createPetals() {
             const container = document.getElementById('petals-container');
-            const petalCount = 8;
+            const petalCount = 12;
             
             for (let i = 0; i < petalCount; i++) {
                 const petal = document.createElement('div');
                 petal.className = 'petal';
                 
-                const duration = 15 + Math.random() * 10;
-                const delay = Math.random() * 8;
-                const drift = (Math.random() - 0.5) * 100;
+                const duration = 12 + Math.random() * 12;
+                const delay = Math.random() * 10;
+                const drift = (Math.random() - 0.5) * 120;
                 const startX = Math.random() * 100;
                 
                 petal.style.left = `${startX}%`;
